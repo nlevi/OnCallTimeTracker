@@ -8,9 +8,9 @@
     <name>OnCallTimeTracker</name>
 
     <properties>
-        <spring.version>4.1.6.RELEASE</spring.version>
-        <springsecurity.version>4.0.1.RELEASE</springsecurity.version>
-        <hibernate.version>4.3.6.Final</hibernate.version>
+        <spring.version>4.2.5.RELEASE</spring.version>
+        <springsecurity.version>4.0.4.RELEASE</springsecurity.version>
+        <hibernate.version>4.3.11.Final</hibernate.version>
     </properties>
 
     <dependencies>
@@ -38,6 +38,11 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
             <version>${spring.version}</version>
         </dependency>
 
@@ -68,10 +73,17 @@
         </dependency>
 
         <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20140107</version>
+        </dependency>
+
+
+        <!--<dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.1-api</artifactId>
             <version>1.0.0.Final</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

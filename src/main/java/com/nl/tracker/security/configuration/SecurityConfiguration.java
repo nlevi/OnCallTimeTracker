@@ -47,9 +47,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and().formLogin().loginPage("/login")
                 //.successHandler(customSuccessHandler)
                 .usernameParameter("username").passwordParameter("password")
-                .and().csrf().csrfTokenRepository(csrfTokenRepository())
-                .and().exceptionHandling().accessDeniedPage("/Access_Denied")
-                .and().addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
+                .and().csrf() //.csrfTokenRepository(csrfTokenRepository())
+                .and().exceptionHandling().accessDeniedPage("/Access_Denied");
+        //.and().addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class);
     }
 
     @Bean

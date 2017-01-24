@@ -6,14 +6,18 @@ package com.nl.tracker.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import com.nl.tracker.model.User;
 import com.nl.tracker.model.UserProfile;
 import com.nl.tracker.service.UserProfileService;
 import com.nl.tracker.service.UserService;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,8 +29,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 @Controller
 @RequestMapping("/")
@@ -95,13 +103,21 @@ public class AppController {
     }
 
     @RequestMapping(value = {"/edit-user-{username}"}, method = RequestMethod.POST)
-    public String updateUser(@Valid User user, BindingResult result,
-                             ModelMap model, @PathVariable String username) {
+    //public String updateUser(@Valid User user, BindingResult result, ModelMap model, @PathVariable String username) {
+    public String updateUser(HttpServletRequest request, ModelMap model, @PathVariable String username) {
 
-        if (result.hasErrors()) {
+        /*if (result.hasErrors()) {
             return "registration";
         }
-
+*/
+        User user = userService.findByUserName(username);
+        user.setFirstName(request.getParameter("firstName"));
+        user.setLastName(request.getParameter("lastName"));
+        user.setPassword(request.getParameter("password"));
+        user.setEmail(request.getParameter("email"));
+        Set<UserProfile> profiles = new HashSet<UserProfile>();
+        profiles.add(userProfileService.findById(Integer.parseInt(request.getParameter("userProfiles"))));
+        user.setUserProfiles(profiles);
         userService.updateUser(user);
 
         model.addAttribute("success", "User " + user.getFirstName() + " " + user.getLastName() + " updated successfully");

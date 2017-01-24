@@ -11,10 +11,11 @@ http://www.springframework.org/schema/mvc http://www.springframework.org/schema/
     <context:component-scan base-package="com.nl.tracker"/>
 
     <mvc:annotation-driven>
-        <mvc:path-matching suffix-pattern="true" />
+        <mvc:path-matching suffix-pattern="true"/>
     </mvc:annotation-driven>
+    <mvc:annotation-driven conversion-service="conversionService"/>
+    <mvc:default-servlet-handler/>
 
-    <mvc:annotation-driven conversion-service="conversionService" />
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 
@@ -32,7 +33,7 @@ http://www.springframework.org/schema/mvc http://www.springframework.org/schema/
 
 
     <bean id="conversionService"
-          class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+          class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">
             <set>
                 <bean class="com.nl.tracker.configuration.RoleToUserProfileConverter"/>
@@ -40,18 +41,18 @@ http://www.springframework.org/schema/mvc http://www.springframework.org/schema/
         </property>
     </bean>
 
-    <mvc:resources mapping="/static/**" location="/static/" />
+    <mvc:resources mapping="/static/**" location="/static/"/>
 
     <!--<jpa:repositories base-package="com.nl.tracker"/>-->
 
-   <!-- <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="defaultPersistenceUnit"/>
-    </bean>
+    <!-- <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalEntityManagerFactoryBean">
+         <property name="persistenceUnitName" value="defaultPersistenceUnit"/>
+     </bean>
 
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory" />
-    </bean>
+     <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+         <property name="entityManagerFactory" ref="entityManagerFactory" />
+     </bean>
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>-->
+     <tx:annotation-driven transaction-manager="transactionManager"/>-->
 
 </beans>
