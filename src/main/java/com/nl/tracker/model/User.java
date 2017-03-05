@@ -3,51 +3,58 @@ package com.nl.tracker.model;
 /**
  * Created by levin1 on 1/11/2017.
  */
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
-@Table(name="APP_USER")
-public class User implements Serializable{
+@Table(name = "APP_USER")
+public class User implements Serializable {
 
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="username", unique=true, nullable=false)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
 
-    @Column(name="password", nullable=false)
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name="first_name", nullable=false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name="last_name", nullable=false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name="email", nullable=false)
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
+
+    @Column(name = "email", nullable = false)
     private String email;
 
-    @Column(name="state", nullable=false)
-    private String state=State.ACTIVE.getState();
+    @Column(name = "state", nullable = false)
+    private String state = State.ACTIVE.getState();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    /*@ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "APP_USER_USER_PROFILE",
             joinColumns = { @JoinColumn(name = "user_id") },
             inverseJoinColumns = { @JoinColumn(name = "user_profile_id") })
-    private Set<UserProfile> userProfiles = new HashSet<UserProfile>();
+    private Set<UserProfile> userProfiles = new HashSet<UserProfile>();*/
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_profile_id", referencedColumnName = "id")
+    private UserProfile userProfiles;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id", referencedColumnName = "id")
+    private User manager;
+
+    @Column(name = "timezone")
+    private String timezone;
 
     public int getId() {
         return id;
@@ -105,12 +112,36 @@ public class User implements Serializable{
         this.state = state;
     }
 
-    public Set<UserProfile> getUserProfiles() {
+    public UserProfile getUserProfiles() {
         return userProfiles;
     }
 
-    public void setUserProfiles(Set<UserProfile> userProfiles) {
+    public void setUserProfiles(UserProfile userProfiles) {
         this.userProfiles = userProfiles;
+    }
+
+    public User getManager() {
+        return manager;
+    }
+
+    public void setManager(User manager) {
+        this.manager = manager;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
 
     @Override
@@ -143,9 +174,7 @@ public class User implements Serializable{
 
     @Override
     public String toString() {
-        return "User [id=" + id + ", username=" + username + ", password=" + password
-                + ", firstName=" + firstName + ", lastName=" + lastName
-                + ", email=" + email + ", state=" + state + ", userProfiles=" + userProfiles +"]";
+        return fullName;
     }
 
 

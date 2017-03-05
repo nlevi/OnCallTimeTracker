@@ -5,17 +5,18 @@ package com.nl.tracker.model;
  */
 
 public enum UserProfileType {
-    USER("TSE"),
+    TSE("TSE"),
     MANAGER("MANAGER"),
-    ADMIN("ADMIN");
+    ADMIN("ADMIN"),
+    WFM("WFM");
 
     String userProfileType;
 
-    private UserProfileType(String userProfileType){
+    private UserProfileType(String userProfileType) {
         this.userProfileType = userProfileType;
     }
 
-    public String getUserProfileType(){
+    public String getUserProfileType() {
         return userProfileType;
     }
 

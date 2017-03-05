@@ -27,7 +27,7 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     protected void handle(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         String targetUrl = determineTargetUrl(authentication);
 
-        if(response.isCommitted()) {
+        if (response.isCommitted()) {
             System.out.println("Can't redirect");
             return;
         }
@@ -40,16 +40,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         List<String> roles = new ArrayList<String>();
-        for(GrantedAuthority a : authorities) {
+        for (GrantedAuthority a : authorities) {
             roles.add(a.getAuthority());
         }
 
-        if(isManager(roles)) {
-            url = "/db";
-        } else if(isAdmin(roles)) {
-            url = "/admin";
-        } else if (isTse(roles)) {
+        if (isManager(roles) || isAdmin(roles)) {
             url = "/home";
+        } else if (isTse(roles) || isWfm(roles)) {
+            url = "/srlist";
         } else {
             url = "/accessDenied";
         }
@@ -66,21 +64,28 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     }
 
     private boolean isAdmin(List<String> roles) {
-        if(roles.contains("ROLE_ADMIN")) {
+        if (roles.contains("ROLE_ADMIN")) {
             return true;
         }
         return false;
     }
 
     private boolean isManager(List<String> roles) {
-        if(roles.contains("ROLE_MANAGER")) {
+        if (roles.contains("ROLE_MANAGER")) {
             return true;
         }
         return false;
     }
 
     private boolean isTse(List<String> roles) {
-        if(roles.contains("ROLE_TSE")) {
+        if (roles.contains("ROLE_TSE")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isWfm(List<String> roles) {
+        if (roles.contains("ROLE_WFM")) {
             return true;
         }
         return false;

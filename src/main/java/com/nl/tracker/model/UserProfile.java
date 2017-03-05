@@ -3,6 +3,7 @@ package com.nl.tracker.model;
 /**
  * Created by levin1 on 1/11/2017.
  */
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,14 +12,15 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="USER_PROFILE")
+@Table(name = "USER_PROFILE")
 public class UserProfile {
 
-    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="type", length=15, unique=true, nullable=false)
-    private String type = UserProfileType.USER.getUserProfileType();
+    @Column(name = "type", length = 15, unique = true, nullable = false)
+    private String type = UserProfileType.TSE.getUserProfileType();
 
     public int getId() {
         return id;
@@ -67,7 +69,8 @@ public class UserProfile {
 
     @Override
     public String toString() {
-        return "UserProfile [id=" + id + ",  type=" + type  + "]";
+        //return "UserProfile [id=" + id + ",  type=" + type  + "]";
+        return type;
     }
 
 
