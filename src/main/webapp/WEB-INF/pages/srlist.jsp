@@ -1,3 +1,4 @@
+<%@ page import="java.util.Date" %>
 <%--
   Created by IntelliJ IDEA.
   User: levin1
@@ -11,6 +12,15 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%! String startFilter;
+    String endFilter;
+    String lastTse;
+%>
+<%
+    startFilter = request.getParameter("start");
+    endFilter = request.getParameter("end");
+    lastTse = request.getParameter("user");
+%>
 
 <html>
 
@@ -35,18 +45,20 @@
             <div class="panel-heading">
                 <h3 class="panel-title pull-left" style="padding-top: 7.5px;">Service Request</h3>
 
-                <div class="col-sm-6">
+                <div class="col-sm-8">
                     <form:form method="POST" modelAttribute="searchCriteria" class="form-vertical">
-                        <div class="col-sm-4">
-                            <form:input type="datetime-local" path="start" id="starttmp"
+                        <div class="col-sm-3=4">
+                            <form:input type="datetime" path="start" id="starttmp"
                                         class="form-control input-sm" required="true"/>
+
                         </div>
                         <form:input type="hidden" path="start" id="start"/>
                         <div class="col-sm-4">
-                            <form:input type="datetime-local" path="end" id="endtmp"
-                                        class="form-control input-sm" required="true"/>
-                            <form:input type="hidden" path="end" id="end"/>
+                                    <form:input type="datetime" path="end" id="endtmp"
+                                                class="form-control input-sm" required="true"/>
+
                         </div>
+                        <form:input type="hidden" path="end" id="end"/>
                         <div class="col-sm-3">
                             <c:choose>
                                 <c:when test="${user != null}">
@@ -77,11 +89,10 @@
                 <tr>
                     <th>ID</th>
                     <th>Customer Name</th>
-                    <th>Site ID</th>
                     <th>Subject</th>
                     <th>Severity</th>
                     <th>Owner</th>
-                    <sec:authorize access="hasRole('MANAGER')">
+                    <sec:authorize access="hasRole('TSE')">
                         <th width="50"></th>
                     </sec:authorize>
                     <sec:authorize access="hasRole('TSE') or hasRole('MANAGER') or hasRole('WFM')">
@@ -95,7 +106,6 @@
                     <tr>
                         <td>${sr.srId}</td>
                         <td>${sr.customerName}</td>
-                        <td>${sr.siteId}</td>
                         <td>${sr.subject}</td>
                         <td>${sr.severity}</td>
                         <td>${sr.createdBy.fullName}</td>
@@ -115,22 +125,42 @@
         <c:if test="${hours != null}">
             <div class="panel panel-info">Total hours <strong>${hours}</strong></div>
         </c:if>
+        <input type="text" class="queryDate" value="<%=startFilter%>"/>
+        <input type="text" class="queryDate" value="<%=endFilter%>"/>
+        <input type="text" class="queryTse" value="<%=lastTse%>"/>
     </div>
-    <%--<sec:authorize access="hasRole('ADMIN')">
-        <div class="well">
-            <a href="<c:url value='/newuser' />">Add New User</a>
-        </div>
-    </sec:authorize>--%>
 </div>
 </body>
 <script>
-    document.getElementById('starttmp').addEventListener('change', addTimeZoneOffset, false);
-    document.getElementById('endtmp').addEventListener('change', addTimeZoneOffset, false);
+    var formatInput = "YYYY-MM-DDTHH:mm:ss";
+    var formatTz = "YYYY-MM-DDTHH:mm:ssZZ";
+    var start = document.getElementById('starttmp');
+    var end = document.getElementById('endtmp');
+    var tse = document.getElementById('user');
+    start.addEventListener('change', addTimeZoneOffset, false);
+    end.addEventListener('change', addTimeZoneOffset, false);
+
+    var queryStartDate = document.getElementsByClassName('queryDate')[0].value;
+    var queryEndDate = document.getElementsByClassName('queryDate')[1].value;
+    var queryLastTse = document.getElementsByClassName('queryTse')[0].value;
+
+    if (queryStartDate != "null" && queryEndDate != "null") {
+        start.value = dateParser(queryStartDate, formatInput);
+        end.value = dateParser(queryEndDate, formatInput);
+    } else {
+        start.value = dateParser(new Date(), formatInput);
+        end.value = dateParser(new Date(), formatInput);
+    }
+
+
+    if (queryLastTse != "null") {
+        tse.value = queryLastTse;
+    }
 
     function addTimeZoneOffset() {
         var tmp = this;
         tmp.removeAttribute('name');
-        var date = moment(tmp.value).format("YYYY-MM-DDTHH:mm:ssZZ");
+        var date = moment(tmp.value).format(formatTz);
         console.log("Value " + tmp.value);
         console.log("New date " + date);
         if (tmp.id == 'starttmp') {
@@ -141,5 +171,9 @@
         ;
     }
     ;
+
+    function dateParser(date, format) {
+        return moment.parseZone(date).format(format);
+    }
 </script>
 </html>

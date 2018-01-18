@@ -17,15 +17,11 @@
     <link href="<c:url value='/static/css/bootstrap.css' />" rel="stylesheet">
     <link href="<c:url value='/static/css/app.css' />" rel="stylesheet">
     <script type="text/javascript" src='/static/js/moment.js'></script>
-
 </head>
-
 <body>
-
 <div class="generic-container">
     <%@include file="navbar.jsp" %>
     <div class=" col-md-7 col-md-offset-2">
-
         <div class="panel panel-default">
             <div class="panel-heading">Service Request ${sr.srId}</div>
             <div class="panel-body col-sm-offset-0">
@@ -61,7 +57,6 @@
                         <div class="row">
                             <div class="form-group">
                                 <label class="col-md-3 control-lable" for="starttmp">Start Time</label>
-
                                 <div class="col-md-6">
                                     <form:input type="datetime-local" path="startTime" id="starttmp"
                                                 class="form-control input-sm"/>
@@ -73,7 +68,6 @@
                         <div class="row">
                             <div class="form-group">
                                 <label class="col-md-3 control-lable" for="endtmp">End Time</label>
-
                                 <div class="col-md-6">
                                     <form:input type="datetime-local" path="endTime" id="endtmp"
                                                 class="form-control input-sm"/>
@@ -81,7 +75,6 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="form-actions floatRight">
                                 <input type="submit" value="Add" class="btn btn-primary btn-sm"/> or <a

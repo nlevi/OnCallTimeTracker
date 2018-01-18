@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.nl.tracker.model.*;
+import com.nl.tracker.security.AuthenticationFacade;
 import com.nl.tracker.service.ServiceRequestService;
 import com.nl.tracker.service.ServiceRequestTimeService;
 import com.nl.tracker.service.UserProfileService;
@@ -54,34 +55,37 @@ public class AppController {
     @Autowired
     AuthenticationTrustResolver authenticationTrustResolver;
 
+    @Autowired
+    AuthenticationFacade authenticationFacade;
+
 
     @RequestMapping(value = {"/", "/home"}, method = RequestMethod.GET)
     public String homePage(ModelMap model) {
         List<User> users;
-        User user = userService.findByUserName(getPrincipal());
+        User user = userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString());
         if (user.getUserProfiles().getType().equals(UserProfileType.MANAGER.getUserProfileType())) {
             users = userService.findByManager(user);
         } else {
             users = userService.findAllUsers();
         }
         model.addAttribute("users", users);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "userlist";
     }
 
     @RequestMapping(value = {"/profile"}, method = RequestMethod.GET)
     public String getProfile(ModelMap model) {
-        User user = userService.findByUserName(getPrincipal());
+        User user = userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString());
         model.addAttribute("user", user);
         model.addAttribute("edit", true);
         model.addAttribute("editMgr", false);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "registration";
     }
 
     @RequestMapping(value = {"/profile"}, method = RequestMethod.POST)
     public void updateProfile(HttpServletRequest request, HttpServletResponse response, ModelMap model) throws IOException {
-        User user = userService.findByUserName(getPrincipal());
+        User user = userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString());
         user.setFirstName(request.getParameter("firstName"));
         user.setLastName(request.getParameter("lastName"));
         user.setPassword(request.getParameter("password"));
@@ -89,7 +93,7 @@ public class AppController {
         user.setTimezone(request.getParameter("timezone"));
         userService.updateUser(user);
 
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         response.sendRedirect("/srlist");
     }
 
@@ -99,7 +103,7 @@ public class AppController {
         model.addAttribute("user", user);
         model.addAttribute("edit", false);
         model.addAttribute("editMgr", true);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "registration";
     }
 
@@ -130,7 +134,7 @@ public class AppController {
         userService.saveUser(user);
 
         model.addAttribute("success", "User " + user.getFirstName() + " " + user.getLastName() + " registered successfully");
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         //return "success";
         return "registrationsuccess";
     }
@@ -141,7 +145,7 @@ public class AppController {
         model.addAttribute("user", user);
         model.addAttribute("edit", true);
         model.addAttribute("editMgr", true);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "registration";
     }
 
@@ -163,7 +167,7 @@ public class AppController {
         userService.updateUser(user);
 
         model.addAttribute("success", "User " + user.getFirstName() + " " + user.getLastName() + " updated successfully");
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "registrationsuccess";
     }
 
@@ -193,7 +197,7 @@ public class AppController {
 
     @RequestMapping(value = "/Access_Denied", method = RequestMethod.GET)
     public String accessDeniedPage(ModelMap model) {
-        model.addAttribute("user", getPrincipal());
+        model.addAttribute("user", authenticationFacade.getPrincipal().getUsername().toString());
         return "accessDenied";
     }
 
@@ -221,7 +225,7 @@ public class AppController {
         ServiceRequest sr = new ServiceRequest();
         model.addAttribute("sr", sr);
         model.addAttribute("edit", false);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
 
         return "createservicerequest";
     }
@@ -234,7 +238,7 @@ public class AppController {
         sr.setSiteId(Long.parseLong(request.getParameter("siteId")));
         sr.setCustomerName(request.getParameter("customerName"));
         sr.setSubject(request.getParameter("subject"));
-        sr.setCreatedBy(userService.findByUserName(getPrincipal()));
+        sr.setCreatedBy(userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString()));
         sr.setSeverity(request.getParameter("severity"));
         sr.setCreationDate(DateUtils.getCurrentUTCDate());
         serviceRequestService.saveSr(sr);
@@ -248,7 +252,7 @@ public class AppController {
 
         List<User> tses = null;
 
-        User user = userService.findByUserName(getPrincipal());
+        User user = userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString());
 
         SearchCriteria searchCriteria = new SearchCriteria();
 
@@ -259,21 +263,21 @@ public class AppController {
             //to be discussed
             tses = userService.findByRole(userProfileService.findByType(UserProfileType.TSE.getUserProfileType()));
         } else {
-            srs = serviceRequestService.findSrByCreator(userService.findByUserName(getPrincipal()));
+            srs = serviceRequestService.findSrByCreator(userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString()));
             model.addAttribute("user", user);
         }
 
         model.addAttribute("srs", srs);
         model.addAttribute("tses", tses);
         model.addAttribute("searchCriteria", searchCriteria);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "srlist";
     }
 
     @RequestMapping(value = "/srlist", method = RequestMethod.POST)
     public String srListFiltered(HttpServletRequest request, ModelMap model) {
         List<ServiceRequest> srs;
-        User mgr = userService.findByUserName(getPrincipal());
+        User mgr = userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString());
         List<User> tses = userService.findByManager(mgr);
         SearchCriteria searchCriteria = new SearchCriteria();
         Date start = DateUtils.getUTCDate(request.getParameter("start"), "yyyy-MM-dd'T'HH:mm:ssX");
@@ -285,11 +289,13 @@ public class AppController {
         if (srs.size() != 0) {
             hours = TimeCalculator.calculateHrs(serviceRequestTimeService.findBySrs(srs));
         }
+        model.addAttribute("start", request.getParameter("start"));
+        model.addAttribute("end", request.getParameter("end"));
         model.addAttribute("srs", srs);
         model.addAttribute("tses", tses);
         model.addAttribute("hours", hours);
         model.addAttribute("searchCriteria", searchCriteria);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "srlist";
     }
 
@@ -301,8 +307,8 @@ public class AppController {
         model.addAttribute("sr", sr);
         model.addAttribute("srTimes", srTimes);
         model.addAttribute("hours", hours);
-        model.addAttribute("timezone", userService.findByUserName(getPrincipal()).getTimezone());
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("timezone", userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString()).getTimezone());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "srview";
     }
 
@@ -314,7 +320,7 @@ public class AppController {
         model.addAttribute("sr", sr);
         model.addAttribute("srTime", srTime);
         model.addAttribute("edit", true);
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         return "addsrtime";
     }
 
@@ -328,16 +334,16 @@ public class AppController {
         long t = TimeUnit.MILLISECONDS.toMinutes(srTime.getEndTime().getTime() - srTime.getStartTime().getTime());
         srTime.setTimeSpent(t);
         srTime.setCreationDate(DateUtils.getCurrentUTCDate());
-        srTime.setUser(userService.findByUserName(getPrincipal()));
+        srTime.setUser(userService.findByUserName(authenticationFacade.getPrincipal().getUsername().toString()));
         serviceRequestTimeService.save(srTime);
 
         model.addAttribute("success", "Time added");
-        model.addAttribute("loggedinuser", getPrincipal());
+        model.addAttribute("loggedinuser", authenticationFacade.getPrincipal().getUsername().toString());
         response.sendRedirect("view-sr-" + srid);
         //return "redirect:/view-sr-" + srid;
     }
 
-    private String getPrincipal() {
+    /*private String getPrincipal() {
         String userName;
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
@@ -347,7 +353,7 @@ public class AppController {
             userName = principal.toString();
         }
         return userService.findByUserName(userName).getUsername();
-    }
+    }*/
 
     private boolean isCurrentAuthenticationAnonymous() {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

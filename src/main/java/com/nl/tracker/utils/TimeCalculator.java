@@ -20,6 +20,9 @@ public class TimeCalculator {
         List<Integer> hours = new ArrayList<Integer>();
         ServiceRequestTime current;
         ServiceRequestTime previous = null;
+        Calendar currentStart = Calendar.getInstance();
+        Calendar currentEnd = Calendar.getInstance();
+        Calendar previousEnd = Calendar.getInstance();
         while (iterator.hasNext()) {
             current = (ServiceRequestTime) iterator.next();
             if (previous == null) {
@@ -27,15 +30,42 @@ public class TimeCalculator {
                 logger.info("SR Time : {}", current.toString());
                 logger.info("SR Time Start Time: {}", current.getStartTime());
                 logger.info("SR Time End Time: {}", current.getEndTime());
+
                 hours.add(getHours(current.getStartTime(), current.getEndTime()));
                 previous = current;
             } else {
                 logger.info("Previous SR Time : {}", previous.toString());
+                previousEnd.setTime(previous.getEndTime());
+                logger.info("Previous SR Time End Time: {}", previousEnd.getTime());
                 logger.info("SR Time : {}", current.toString());
-                logger.info("SR Time Start Time: {}", current.getStartTime());
-                logger.info("SR Time End Time: {}", current.getEndTime());
+                currentStart.setTime(current.getStartTime());
+                logger.info("Current SR Time Start Time: {}", currentStart.getTime());
+                currentEnd.setTime(current.getEndTime());
+                logger.info("Current SR Time End Time: {}", currentEnd.getTime());
+
+                if ((previousEnd.get(Calendar.HOUR) == currentStart.get(Calendar.HOUR))
+                        && (previousEnd.get(Calendar.DAY_OF_MONTH) != currentStart.get(Calendar.DAY_OF_MONTH))) {
+                    //Same hour but different day
+                    logger.info("Same hour, different day.");
+                    if ((currentEnd.get(Calendar.MINUTE) == 0)
+                            && (currentEnd.get(Calendar.HOUR) == (currentStart.get(Calendar.HOUR) + 1))) { //Check if end time is hh:00 and start time hour is 1 hour behind end. Then do count next hour.
+                        logger.info("Hours : 1.");
+                        hours.add(1);
+                    } else if (currentEnd.get(Calendar.HOUR) == currentStart.get(Calendar.HOUR)) { //Check if start hour equals end hour.
+                        logger.info("Hours : 1.");
+                        hours.add(1);
+                    } else if (currentEnd.get(Calendar.HOUR) > currentStart.get(Calendar.HOUR)) { // Start hour and end hour are different. Calculate difference + 1.
+                        hours.add(((currentEnd.get(Calendar.HOUR) - currentStart.get(Calendar.HOUR)) + 1));
+                    }
+                } else if ((previousEnd.get(Calendar.HOUR) == currentStart.get(Calendar.HOUR))
+                        && (previousEnd.get(Calendar.DAY_OF_MONTH) == currentStart.get(Calendar.DAY_OF_MONTH))) {
+                    //Same hour, same day.
+                    logger.info("Same hour, same day.");
+
+
+                }
                 //current = (ServiceRequestTime) iterator.next();
-                hours.add(overlapping(previous, current));
+                //hours.add(overlapping(previous, current));
                 previous = current;
             }
 
@@ -60,12 +90,22 @@ public class TimeCalculator {
         curEnd.setTime(current.getEndTime());
 
         if ((prevEnd.get(Calendar.HOUR) == curStart.get(Calendar.HOUR)) && (prevEnd.get(Calendar.DAY_OF_MONTH) == curStart.get(Calendar.DAY_OF_MONTH))) {
-            logger.info("Overlapping with previous time. Incrementing by hour.");
-            if (prevEnd.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR)) {
+            logger.info("Overlapping with previous time.");
+            logger.info("Previous ends at mins : {}", prevEnd.get(Calendar.MINUTE));
+            if (prevEnd.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR) && (curStart.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR)) && (prevEnd.get(Calendar.MINUTE) != 0)) {
+                logger.info("Hours diff 0. Same hour.");
                 return 0;
-            } else if (curStart.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR)) {
+            } else if (prevEnd.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR) && (curStart.get(Calendar.HOUR) != curEnd.get(Calendar.HOUR)) && (curEnd.get(Calendar.HOUR) == (curStart.get(Calendar.HOUR) + 1))) {
+                logger.info("Hours diff 0. Same hour.");
+                return 0;
+            } else if (prevEnd.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR) && (curStart.get(Calendar.HOUR) == curEnd.get(Calendar.HOUR))) {
+                logger.info("Hours diff : {}", 1);
+                return 1;
+            }
+            /*else if (curStart.get(Calendar.HOUR) != curEnd.get(Calendar.HOUR)) {
                 return getHours(curStart.getTime(), current.getEndTime());
-            } else {
+            } */
+            else {
                 curStart.add(Calendar.HOUR, 1);
                 return getHours(curStart.getTime(), curEnd.getTime());
             }
@@ -77,20 +117,23 @@ public class TimeCalculator {
     }
 
     private static Integer getHours(Date startTime, Date endTime) {
-        Calendar cal1 = Calendar.getInstance();
-        cal1.setTime(startTime);
-        logger.info("Cal Start Time : {}", cal1.getTime());
+        Calendar start = Calendar.getInstance();
+        start.setTime(startTime);
+        logger.info("Cal Start Time : {}", start.getTime());
 
-        Calendar cal2 = Calendar.getInstance();
-        cal2.setTime(endTime);
-        logger.info("Cal End Time : {}", cal2.getTime());
+        Calendar end = Calendar.getInstance();
+        end.setTime(endTime);
+        logger.info("Cal End Time : {}", end.getTime());
         int t = 0;
-        if (cal2.get(Calendar.HOUR) == cal1.get(Calendar.HOUR)) {
+        if (end.get(Calendar.HOUR) == start.get(Calendar.HOUR)) {
             logger.info("In same hour. Hours : 1");
             return 1;
+        } else if (end.get(Calendar.HOUR) != start.get(Calendar.HOUR) && end.get(Calendar.MINUTE) == 0) {
+            t = end.get(Calendar.HOUR) - start.get(Calendar.HOUR);
+            logger.info("Hours diff : {}", t);
+            return t;
         } else {
-
-            t = cal2.get(Calendar.HOUR) - cal1.get(Calendar.HOUR);
+            t = end.get(Calendar.HOUR) - start.get(Calendar.HOUR);
             t = ++t;
             logger.info("Hours diff : {}", t);
             return t;

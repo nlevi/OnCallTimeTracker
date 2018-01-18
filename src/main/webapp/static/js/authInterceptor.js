@@ -25,4 +25,4 @@ $scope.login = function () {
     authenticate($scope)
 }
 
-)
+

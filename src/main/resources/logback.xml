@@ -23,7 +23,7 @@
     </appender>
 
     <logger name="com.nl.tracker" additivity="false">
-        <level value="ERROR"/>
+        <level value="DEBUG"/>
         <appender-ref ref="dailyRollingFileAppender"/>
         <appender-ref ref="consoleAppender"/>
     </logger>
